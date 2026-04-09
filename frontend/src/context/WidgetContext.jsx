@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
+import { useAuth } from './AuthContext';
 
 const WidgetContext = createContext(null);
 
@@ -23,19 +24,22 @@ export const WidgetProvider = ({ children }) => {
   const [widgets, setWidgets] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const { user } = useAuth();
   useEffect(() => {
     const saved = localStorage.getItem('dashboard-widgets');
     if (saved) {
       try {
         setWidgets(JSON.parse(saved));
       } catch {
-        setWidgets(DEFAULT_LAYOUT.analyst);
+        const role = user?.role || 'analyst';
+        setWidgets(DEFAULT_LAYOUT[role] || DEFAULT_LAYOUT.analyst);
       }
-    } else {
-      setWidgets(DEFAULT_LAYOUT.analyst);
+    } else if (user) {
+      const role = user.role || 'analyst';
+      setWidgets(DEFAULT_LAYOUT[role] || DEFAULT_LAYOUT.analyst);
     }
     setLoading(false);
-  }, []);
+  }, [user]);
 
   const updateWidgets = (newWidgets) => {
     setWidgets(newWidgets);

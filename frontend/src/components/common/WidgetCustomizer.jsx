@@ -1,17 +1,21 @@
 import { useState } from 'react';
 import { useWidgets, AVAILABLE_WIDGETS } from '../../context/WidgetContext';
-import { HiXMark, HiArrowPathRoundedSquare, HiCheck, HiBars3, HiPlus, HiMinus } from 'react-icons/hi2';
+import { useAuth } from '../../context/AuthContext';
+import { HiXMark, HiArrowPathRoundedSquare, HiBars3, HiPlus, HiMinus } from 'react-icons/hi2';
 
 export default function WidgetCustomizer({ isOpen, onClose }) {
   const { widgets, toggleWidget, moveWidget, resetToDefault } = useWidgets();
+  const { user } = useAuth();
   const [draggedIndex, setDraggedIndex] = useState(null);
 
   const handleDragStart = (index) => {
+    if (index === -1) return;
     setDraggedIndex(index);
   };
 
   const handleDragOver = (e, index) => {
     e.preventDefault();
+    if (index === -1) return;
     if (draggedIndex !== null && draggedIndex !== index) {
       moveWidget(draggedIndex, index);
       setDraggedIndex(index);
@@ -23,8 +27,7 @@ export default function WidgetCustomizer({ isOpen, onClose }) {
   };
 
   const handleReset = () => {
-    const role = localStorage.getItem('userRole') || 'analyst';
-    resetToDefault(role);
+    resetToDefault(user?.role || 'analyst');
   };
 
   return (
@@ -54,13 +57,13 @@ export default function WidgetCustomizer({ isOpen, onClose }) {
               return (
                 <div
                   key={widget.id}
-                  className={`widget-item ${isActive ? 'active' : ''} ${draggedIndex !== null ? 'dragging' : ''}`}
-                  draggable
+                  className={`widget-item ${isActive ? 'active' : ''} ${draggedIndex !== null && isActive ? 'dragging' : ''}`}
+                  draggable={isActive}
                   onDragStart={() => handleDragStart(widgets.indexOf(widget.id))}
                   onDragOver={(e) => handleDragOver(e, widgets.indexOf(widget.id))}
                   onDragEnd={handleDragEnd}
                 >
-                  <div className="drag-handle">
+                  <div className="drag-handle" style={{ cursor: isActive ? 'grab' : 'not-allowed', opacity: isActive ? 1 : 0.4 }}>
                     <HiBars3 size={16} />
                   </div>
                   <span className="widget-icon">{widget.icon}</span>

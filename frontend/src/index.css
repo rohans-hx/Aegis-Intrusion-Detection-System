@@ -634,7 +634,7 @@ tbody tr:last-child td { border-bottom: none; }
   height: 100vh;
   background: var(--bg-1);
   border-left: 1px solid var(--bg-3);
-  z-index: 300;
+  z-index: 501;
   transition: right 0.3s ease;
   display: flex;
   flex-direction: column;
